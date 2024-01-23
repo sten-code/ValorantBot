@@ -35,4 +35,4 @@
 /.vs
 /x64
 /ScreenTest/x64
-/Libs/*
+/Libs/opencv
