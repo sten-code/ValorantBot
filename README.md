@@ -28,6 +28,8 @@ You can get a Pico for ~4 USD, which makes this a very good option if you alread
 ![Connections](https://cdn.discordapp.com/attachments/713846997039448134/1199471776174985366/PicoArduinoSerial.png)
 - The idea behind this, is that you send serial input to your Arduino Uno from your PC, then it will merge that with the USB Host Shield, which will take input from the mouse. It will then pass all that data along to the Pico which will act as the HID mouse.
     - You will have to unplug all mice from your PC and plug your main one into the USB Host Shield, this is because Vanguard doesn't allow multiple mice to work at the same time. This is also the entire reason you need a USB Host Shield in the first place.
+- The code on the Pico can be found [here](https://github.com/sten-code/ValorantBot/tree/master/Microcontrollers/Pico)
+- The code on the Arduino Uno can be found [here](https://github.com/sten-code/ValorantBot/tree/master/Microcontrollers/Arduino%20Uno)
 
 ## [Arduino Leonardo](https://store.arduino.cc/products/arduino-leonardo-with-headers) and a [USB Host Shield](https://github.com/felis/USB_Host_Shield_2.0)
 
