@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/.vs/ScreenTest
+/x64
+/ScreenTest/x64
