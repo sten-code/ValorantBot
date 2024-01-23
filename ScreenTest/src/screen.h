@@ -17,7 +17,7 @@ public:
 	inline int GetHeight() const { return m_Height; }
 private:
 	int m_Width, m_Height;
-	unsigned char* m_Buffer;
+	unsigned char* m_Buffer = nullptr;
 	size_t m_BufferSize;
 
 	HDC m_hScreenDC; // device context for the entire screen

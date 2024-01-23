@@ -2,6 +2,7 @@
 
 #include <string>
 #include <Windows.h>
+#include <memory>
 
 class SerialPort
 {
@@ -12,10 +13,9 @@ public:
 	void Close();
 
 	bool Write(const std::string& message);
-	bool Write(const unsigned char* bytes, size_t size);
-	bool Write(const char* chars, size_t size);
+	bool Write(const char* data, size_t size);
 
-	unsigned char* Read(size_t size);
+	std::unique_ptr<char[]> Read(size_t size);
 	HANDLE GetSerialPortHandle() const { return m_SerialPort; }
 private:
 	HANDLE m_SerialPort = NULL;

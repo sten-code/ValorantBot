@@ -52,34 +52,25 @@ void SerialPort::Close()
 
 bool SerialPort::Write(const std::string& message)
 {
-    // Write data to the serial port
     DWORD bytesWritten;
     return WriteFile(m_SerialPort, message.c_str(), message.length(), &bytesWritten, nullptr);
 }
 
-bool SerialPort::Write(const unsigned char* bytes, size_t size)
+bool SerialPort::Write(const char* data, size_t size)
 {
-    // Write data to the serial port
     DWORD bytesWritten;
-    return WriteFile(m_SerialPort, bytes, size, &bytesWritten, nullptr);
+    return WriteFile(m_SerialPort, data, size, &bytesWritten, nullptr);
 }
 
-bool SerialPort::Write(const char* chars, size_t size)
+std::unique_ptr<char[]> SerialPort::Read(size_t size)
 {
-    // Write data to the serial port
-    DWORD bytesWritten;
-    return WriteFile(m_SerialPort, chars, size, &bytesWritten, nullptr);
-}
-
-unsigned char* SerialPort::Read(size_t size)
-{
-    // Allocate an extra byte for the null terminator
-    unsigned char* buffer = new unsigned char[size + 1];
+    // Allocate an extra byte for the null-terminator
+    std::unique_ptr<char[]> buffer(new char[size + 1]);
     DWORD bytesRead;
-
-    if (ReadFile(m_SerialPort, buffer, size, &bytesRead, nullptr)) 
+    if (ReadFile(m_SerialPort, buffer.get(), size, &bytesRead, nullptr))
     {
-        buffer[bytesRead] = '\0'; // Null-terminate the string
+        // Null-terminate the string
+        buffer[bytesRead] = '\0';
         return buffer;
     }
     return nullptr;
