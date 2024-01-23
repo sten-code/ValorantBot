@@ -30,6 +30,9 @@
 *.exe
 *.out
 *.app
-/.vs/ScreenTest
+
+
+/.vs
 /x64
 /ScreenTest/x64
+/Libs/*
