@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{9e7c180b-fd2e-4516-ba90-9c099f0fb905}</ProjectGuid>
-    <RootNamespace>ScreenTest</RootNamespace>
+    <RootNamespace>ValorantBot</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
