@@ -8,7 +8,7 @@ A color bot is a hack that only uses data from the screen in order to do things 
 
 This bot uses the Win32 API in order to read pixel values from the screen into a buffer. It converts this buffer of pixels into an OpenCV image, where it uses masking and some filters in order to find out where the enemies are.
 
-It will then find the enemy closest to the crosshair and the highest point in order to estimate where the head of the enemy is.
+It will then find the enemy closest to the crosshair and the highest point in order to estimate where the nearest head of the enemy is.
 
 When the ALT key is pressed it will send the required mouse movements to a microcontroller through the serial interface which will then send back a HID mouse input.
 
@@ -39,11 +39,11 @@ You can find instructions [here](https://github.com/sten-code/ValorantBot/tree/m
 
 ## [Arduino Leonardo](https://store.arduino.cc/products/arduino-leonardo-with-headers) and a [USB Host Shield](https://github.com/felis/USB_Host_Shield_2.0)
 
-This is by far the most popular option as it only requires 2 components, though this isn't cheap. You can get these components for very little on online Chinese stores such as AliExpress. I got an Arduino Leonardo for 1.5 USD + 2 USD shipping. If you don't want to spend much and don't really care about having to wait ~10 days then getting it on these sites is a really good alternative.
+This is by far the most popular option as it only requires 2 components, though this usually isn't cheap. If you buy these on standard online stores then it can cost you up to 30-40 USD for both the Arduino Leonardo and the USB Host Shield, but you can get these components for very little on online Chinese stores such as AliExpress. I got an Arduino Leonardo for 1.5 USD + 2 USD shipping. If you don't want to spend much and don't really care about having to wait ~10 days then getting it on these sites is a really good alternative.
 
 - Place the USB Host Shield on top of the Arduino Leonardo.
-- The idea is that you send serial input to your Arduino Leonardo from your PC then it will merge that with the USB Host Shield which will take input from the mouse. It will then move the mouse based on the input it's given.
-    - You will have to unplug all mice from your PC and plug your main one into the USB Host Shield, this is because Vanguard doesn't allow multiple mice to work at the same time. This is also the entire reason you need a USB Host Shield in the first place.
+- You will have to unplug all mice from your PC and plug your main one into the USB Host Shield.
+    - Vanguard doesn't allow multiple mice to work at the same time. This is the entire reason you need a USB Host Shield in the first place.
 
 ## USB Host Shield no power fix
 
