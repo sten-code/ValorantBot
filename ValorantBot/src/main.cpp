@@ -1,11 +1,11 @@
 #include "screen.h"
-#include "serialport.h"
 
 #include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
 
+#include <hidapi.h>
 #include <opencv2/opencv.hpp>
 #pragma comment (lib, "OneCore.lib") // Required for `GetCommPorts`
 #include <Windows.h>
@@ -20,11 +20,13 @@ static cv::Point s_FOVCenter;
 static cv::Point s_CaptureLocation;
 static RECT s_WindowRect;
 
+#define MAX_STR 255
+
 int main(int argc, char* argv[])
 {
     HWND windowHandle = FindWindow(NULL, L"VALORANT");
     if (windowHandle) GetWindowRect(windowHandle, &s_WindowRect);
-    else 
+    else
     {
         // If valorant is closed, just use the entire primary screen
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -44,54 +46,8 @@ int main(int argc, char* argv[])
     // Initialize a screen capture
     Screen screen(s_FOVSize.x, s_FOVSize.y);
 
-    std::cout << "--------------------------------------" << std::endl;
-    ULONG portNumbers[100];
-    ULONG portsFound;
-    ULONG status = GetCommPorts(portNumbers, 100, &portsFound);
-
-    switch (status)
-    {
-    case ERROR_SUCCESS:
-        std::cout << "Found " << portsFound << " port(s)." << std::endl;
-        for (auto i = 0; i < portsFound; i++) {
-            if (i > 0) std::cout << ", ";
-            std::cout << "COM" << portNumbers[i];
-        }
-        std::cout << std::endl;
-        break;
-    case ERROR_FILE_NOT_FOUND:
-        std::cout << "There are no COM ports available!" << std::endl;
-        break;
-    default:
-        std::cout << "An error occurred!" << std::endl;
-        break;
-    }
-    std::cout << "--------------------------------------" << std::endl;
-
-    std::string comPort;
-    std::cout << "Select the COM port";
-
-    // If there are one or more ports, show the first port as a default option
-    if (portsFound >= 1)
-        std::cout << " (COM" << portNumbers[0] << "): ";
-    else
-        std::cout << ": ";
-
-    getline(std::cin, comPort);
-
-    // If no value is given, just set the default value
-    if (comPort.size() == 0 && portsFound >= 1)
-    {
-        std::stringstream ss;
-        ss << "COM" << portNumbers[0];
-        comPort = ss.str();
-    }
-
-    // Connect to the COM port
-    SerialPort port;
-    if (!port.Open(comPort, 115200))
-        std::cout << "Couldn't connect to: '" << comPort << "'" << std::endl;
-
+    hid_device* handle = hid_open(0x1038, 0x1858, L"CHIDLC");
+    
     while (true)
     {
         // Capture screen data in an array of rgba values
@@ -118,13 +74,30 @@ int main(int argc, char* argv[])
             if (GetAsyncKeyState(VK_MENU) & 0x8000) 
             {
                 // Calculate the location of the enemy relative the the crosshair
-                cv::Point target = centerHead - s_FOVCenter;
+                cv::Point target = (centerHead - s_FOVCenter) / 1.5f;
+                if (target.x > 127) target.x = 127;
+                if (target.x < -128) target.x = -128;
+                if (target.y > 127) target.y = 127;
+                if (target.y < -128) target.y = -128;
 
-                // Format and send the data to the Arduino
-                std::stringstream ss;
-                ss << target.x << "," << target.y << std::endl;
-                port.Write(ss.str());
-                std::cout << ss.str();
+                double distance = std::sqrt(target.x * target.x + target.y + target.y);
+                if (distance < 5) {
+                    unsigned char buf[3];
+                    buf[0] = 0;
+                    buf[1] = 'C';
+                    buf[2] = '1';
+                    hid_write(handle, buf, sizeof(buf));
+                }
+
+                {
+                    unsigned char buf[4];
+                    buf[0] = 0;
+                    buf[1] = 'M';
+                    buf[2] = target.x;
+                    buf[3] = target.y;
+                    hid_write(handle, buf, sizeof(buf));
+                }
+                std::cout << "Move: " << target.x << ", " << target.y << std::endl;
             }
         }
 
@@ -141,7 +114,7 @@ cv::Point FindEnemy(cv::Mat image)
 {
     // Define the lower and upper bounds for the mask
     static cv::Scalar lowerBound = { 140, 110, 150 };
-    static cv::Scalar upperBound = { 150, 195, 255 };
+    static cv::Scalar upperBound = { 160, 200, 255 };
 
     // Convert the image from rgb to hsv
     cv::Mat hsv;

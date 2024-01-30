@@ -16,20 +16,26 @@ Valorant doesn't allow for multiple mice to work at the same time so it uses a U
 
 There are multiple options for microcontrollers and different configurations:
 
-## [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/), [Arduino Uno](https://store.arduino.cc/products/arduino-uno-rev3) and a [USB Host Shield](https://github.com/felis/USB_Host_Shield_2.0)
+## Compiling from Source
 
-I haven't seen anyone use this configuration. The only reason I use this is because I had a Pico laying around.
-You can get a Pico for ~4 USD, which makes this a very good option if you already have an Arduino Uno but not an Arduino Leonardo.
+You will need a program to send the mouse positions to the Arduino. For this you will have to compile the `ValorantBot` program.
 
-- Place the USB Host Shield on top of the Arduino Uno and connect the Arduino Uno to the Pico through the uart connection.
-- Connect pin 2 of the Arduino Uno to Pin 0 of the Pico.
-- Connect pin 3 of the Arduino Uno to Pin 1 of the Pico.
-- Connect the ground from the Arduino Uno to the ground of the Pico.
-![Connections](https://cdn.discordapp.com/attachments/713846997039448134/1199471776174985366/PicoArduinoSerial.png)
-- The idea behind this, is that you send serial input to your Arduino Uno from your PC, then it will merge that with the USB Host Shield, which will take input from the mouse. It will then pass all that data along to the Pico which will act as the HID mouse.
-    - You will have to unplug all mice from your PC and plug your main one into the USB Host Shield, this is because Vanguard doesn't allow multiple mice to work at the same time. This is also the entire reason you need a USB Host Shield in the first place.
-- The code on the Pico can be found [here](https://github.com/sten-code/ValorantBot/tree/master/Microcontrollers/Pico)
-- The code on the Arduino Uno can be found [here](https://github.com/sten-code/ValorantBot/tree/master/Microcontrollers/Arduino%20Uno)
+
+- First run this command or download this repository as a `.zip` file.
+    ```bash
+    git clone https://github.com/sten-code/ValorantBot
+    ```
+- Open the `Libs` folder and follow the instructions from the [README.md](https://github.com/sten-code/ValorantBot/tree/master/Libs) in there.
+- Open the `ValorantBot.sln` file in Visual Studio.
+    - Make sure you have the `Desktop Environment with C++` module installed inside Visual Studio.
+- Set the configuration to `Release`, target platform to `x64` and compile by going into the Build menu at the top and by pressing `Build Solution`
+- You now have a `.exe` file inside `x64/Release` (there is also a folder called `ValorantBot/x64/Release`, but just ignore this one).
+
+## [Arduino Leonardo](https://store.arduino.cc/products/arduino-leonardo-with-headers)
+
+The way this works is by setting the VID and PID of the Arduino Leonardo to the same VID and PID of your mouse so that Valorant won't disable your Arduino Leonardo.
+
+You can find instructions [here](https://github.com/sten-code/ValorantBot/tree/master/Microcontrollers/Arduino%20Leonardo).
 
 ## [Arduino Leonardo](https://store.arduino.cc/products/arduino-leonardo-with-headers) and a [USB Host Shield](https://github.com/felis/USB_Host_Shield_2.0)
 
