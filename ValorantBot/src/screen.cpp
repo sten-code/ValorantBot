@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-Screen::Screen(int width, int height)
+ScreenCapture::ScreenCapture(int width, int height)
 	: m_Width(width), m_Height(height)
 {
 	m_hScreenDC = GetDC(NULL);
@@ -28,7 +28,7 @@ Screen::Screen(int width, int height)
 	m_BI.biClrImportant = 0;
 }
 
-Screen::~Screen()
+ScreenCapture::~ScreenCapture()
 {
 	// Cleanup
 	delete[] m_Buffer;
@@ -37,7 +37,7 @@ Screen::~Screen()
 	ReleaseDC(NULL, m_hScreenDC);
 }
 
-void Screen::Resize(int width, int height)
+void ScreenCapture::Resize(int width, int height)
 {
 	m_Width = width;
 	m_Height = height;
@@ -50,7 +50,7 @@ void Screen::Resize(int width, int height)
 	m_Buffer = new unsigned char[m_BufferSize];
 }
 
-unsigned char* Screen::CaptureScreen(int x, int y)
+unsigned char* ScreenCapture::CaptureScreen(int x, int y)
 {
 	// Capture the screen contents into the bitmap
 	BitBlt(m_hCaptureDC, 0, 0, m_Width, m_Height, m_hScreenDC, x, y, SRCCOPY);

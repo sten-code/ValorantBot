@@ -2,11 +2,11 @@
 
 #include <Windows.h>
 
-class Screen 
+class ScreenCapture 
 {
 public:
-	Screen(int width, int height);
-	~Screen();
+	ScreenCapture(int width, int height);
+	~ScreenCapture();
 
 	void Resize(int width, int height);
 
