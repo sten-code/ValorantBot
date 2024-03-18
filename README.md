@@ -25,7 +25,7 @@ You will need a program to send the mouse positions to the Arduino. For this you
     ```bash
     git clone https://github.com/sten-code/ValorantBot
     ```
-- Open the `Libs` folder and follow the instructions from the [README.md](https://github.com/sten-code/ValorantBot/tree/master/Libs) in there.
+- Open the `ValorantBot/vendor` folder and follow the instructions from the [README.md](https://github.com/sten-code/ValorantBot/tree/master/ValorantBot/vendor) in there.
 - Open the `ValorantBot.sln` file in Visual Studio.
     - Make sure you have the `Desktop Environment with C++` module installed inside Visual Studio.
 - Set the configuration to `Release`, target platform to `x64` and compile by going into the Build menu at the top and by pressing `Build Solution`
