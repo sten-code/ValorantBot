@@ -1,6 +1,5 @@
 /.vs
 /x64
 /ValorantBot/x64
-/ValorantBot/opencv_world490.dll
 /ValorantBot/opencv_world490d.dll
-/Libs/opencv
+/ValorantBot/vendor/opencv

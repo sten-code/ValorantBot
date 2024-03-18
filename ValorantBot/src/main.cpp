@@ -29,6 +29,8 @@ static int s_TriggerbotDelay = 200;
 static bool s_OutlinesEnabled = true;
 static bool s_TracersEnabled = true;
 static bool s_FOVVisualEnabled = true;
+static bool s_RecoilControlEnabled = false;
+static int s_RecoilControlStrength = -20;
 static Hotkey s_AimbotKey = { ImGui::GetKeyIndex(ImGuiKey_ModAlt) };
 
 #define MAX_STR 255
@@ -46,7 +48,8 @@ void CALLBACK WinEventProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, 
     }
 }
 
-bool IsValorantForeground() {
+bool IsValorantForeground() 
+{
     HWND hwnd = GetForegroundWindow();
     if (hwnd == NULL)
         return false; // No foreground window
@@ -66,6 +69,7 @@ int main(int argc, char* argv[])
     
     // Define the region to capture
     Globals::s_WindowSize = { Globals::s_WindowRect.right - Globals::s_WindowRect.left, Globals::s_WindowRect.bottom - Globals::s_WindowRect.top };
+    Globals::s_WindowSize = { 2560, 1600 };
     Globals::s_WindowLocation = { Globals::s_WindowRect.left, Globals::s_WindowRect.top };
     Globals::s_WindowCenter = Globals::s_WindowLocation + Globals::s_WindowSize / 2.0f;
     Globals::s_FOVSize = { 400, 400 };
@@ -74,15 +78,9 @@ int main(int argc, char* argv[])
 
     // Initialize a screen capture
     ScreenCapture screen(Globals::s_FOVSize.x, Globals::s_FOVSize.y);
+    hid_device* handle = nullptr;
 
-    hid_device* handle = hid_open(0x413c, 0x301a, L"CHIDLC");
-    if (!handle) {
-        std::cout << "Unable to open device" << std::endl;
-        hid_exit();
-        return EXIT_FAILURE;
-    }
-
-    Window::Setup("Window Name", "Class Name");
+    Window::Setup("Valorant Bot", "Valorant Bot Class");
     //Window::SetEnabled(IsValorantForeground());
     //Window::SetOpen(false);
     Window::SetEnabled(true);
@@ -101,6 +99,10 @@ int main(int argc, char* argv[])
     triggerbotMenu.AddSetting("Range", &s_TriggerbotRange, 0.0f, 20.0f);
     triggerbotMenu.AddSetting("Delay", &s_TriggerbotDelay, 0, 1000);
 
+    SubMenu& recoilControlMenu = hacksMenu.AddSubMenu("Recoil Control");
+    recoilControlMenu.AddSetting("Enabled", &s_RecoilControlEnabled);
+    recoilControlMenu.AddSetting("Strength", &s_RecoilControlStrength, 0, 100);
+
     SubMenu& visualsMenu = hacksMenu.AddSubMenu("Visuals");
     visualsMenu.AddSetting("Outlines", &s_OutlinesEnabled);
     visualsMenu.AddSetting("Tracers", &s_TracersEnabled);
@@ -113,6 +115,10 @@ int main(int argc, char* argv[])
     std::vector<const char*> items = { "Test 1", "Test 2", "Test 3" };
     arduinoMenu.AddSetting("COM Ports", &choice, &items);
 
+    arduinoMenu.AddButton("Connect", []() {
+        std::cout << "test" << std::endl;
+    });
+
     long long lastShot = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     HWINEVENTHOOK hWinEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL, WinEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
     if (!hWinEventHook) {
@@ -122,6 +128,9 @@ int main(int argc, char* argv[])
     
     while (true)
     {
+        if (!handle)
+            handle = hid_open(0x413c, 0x301a, L"CHIDLC");
+
         if (!Window::Begin())
             break;
         
@@ -160,7 +169,7 @@ int main(int argc, char* argv[])
 
                 double distance = std::sqrt(target.x * target.x + target.y + target.y);
                 long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                if (s_TriggerbotEnabled && distance < s_TriggerbotRange && now - lastShot > s_TriggerbotDelay) {
+                if (handle && s_TriggerbotEnabled && distance < s_TriggerbotRange && now - lastShot > s_TriggerbotDelay) {
                     lastShot = now;
                     unsigned char buf[3];
                     buf[0] = 0;
@@ -169,7 +178,7 @@ int main(int argc, char* argv[])
                     hid_write(handle, buf, sizeof(buf));
                 }
 
-                if (s_AimbotEnabled) {
+                if (handle && s_AimbotEnabled) {
                     unsigned char buf[4];
                     buf[0] = 0;
                     buf[1] = 'M';
@@ -178,6 +187,17 @@ int main(int argc, char* argv[])
                     hid_write(handle, buf, sizeof(buf));
                 }
             }
+        }
+
+        // Recoil control
+        if (handle && GetAsyncKeyState(VK_LBUTTON) && s_RecoilControlEnabled)
+        {
+            unsigned char buf[4];
+            buf[0] = 0;
+            buf[1] = 'M';
+            buf[2] = 0;
+            buf[3] = -s_RecoilControlStrength;
+            hid_write(handle, buf, sizeof(buf));
         }
 
         if (s_FOVVisualEnabled && Window::IsEnabled())
@@ -200,7 +220,7 @@ int main(int argc, char* argv[])
 cv::Point FindEnemy(cv::Mat& image)
 {
     // Define the lower and upper bounds for the mask
-    static cv::Scalar lowerBound = { 140, 110, 150 };
+    static cv::Scalar lowerBound = { 140, 120, 180 };
     static cv::Scalar upperBound = { 160, 200, 255 };
 
     std::vector<Contour> contours = Detection::FindContours(image, lowerBound, upperBound);
@@ -211,7 +231,8 @@ cv::Point FindEnemy(cv::Mat& image)
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
         for (const auto& contour : contours)
         {
-            for (size_t i = 0; i < contour.size() - 1; ++i) {
+            for (size_t i = 0; i < contour.size() - 1; ++i)
+            {
                 ImVec2 p1 = ImVec2(contour[i].x + Globals::s_WindowSize.x / 2 - Globals::s_FOVCenter.x, contour[i].y + Globals::s_WindowSize.y / 2 - Globals::s_FOVCenter.y);
                 ImVec2 p2 = ImVec2(contour[i + 1].x + Globals::s_WindowSize.x / 2 - Globals::s_FOVCenter.x, contour[i + 1].y + Globals::s_WindowSize.y / 2 - Globals::s_FOVCenter.y);
 

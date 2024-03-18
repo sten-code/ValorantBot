@@ -8,6 +8,7 @@
 #include <nav_elements.h>
 #include <etc_elements.h>
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -84,6 +85,17 @@ struct ChoiceSetting : public Setting
 	const std::string GetChoice() const { return (*ComboItems)[*Choice]; }
 };
 
+struct ButtonSetting : public Setting
+{
+	std::function<void(void)> Callback;
+
+	ButtonSetting() = default;
+	ButtonSetting(const std::string& name, std::function<void(void)> callback)
+		: Setting(name), Callback(callback) {}
+
+	virtual void Render() override { if (ImGui::Button(Name.c_str())) Callback(); }
+};
+
 struct SubMenu
 {
 	std::string Name;
@@ -117,6 +129,12 @@ struct SubMenu
 	{
 		Settings.push_back(std::make_unique<ChoiceSetting>(name, choice, comboItems));
 		return (ChoiceSetting&)*Settings.back();
+	}
+
+	ButtonSetting& AddButton(const std::string& text, std::function<void(void)> callback)
+	{
+		Settings.push_back(std::make_unique<ButtonSetting>(text, callback));
+		return (ButtonSetting&)*Settings.back();
 	}
 };
 
