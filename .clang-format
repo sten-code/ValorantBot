@@ -1,0 +1,10 @@
+BasedOnStyle: WebKit
+IndentWidth: 4
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+SpaceInEmptyBlock: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+NamespaceIndentation: All
+IndentCaseLabels: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
