@@ -72,7 +72,7 @@ void Application::Run()
         }
 
         const ImGuiID dockspaceId = ImGui::GetID("MainDockSpace");
-        ImGui::DockSpace(dockspaceId, ImVec2 { 0.0f, ImGui::GetContentRegionAvail().y });
+        ImGui::DockSpace(dockspaceId, ImVec2 { 0.0f, ImGui::GetContentRegionAvail().y - m_StatusBarHeight });
 
         for (Layer* layer : m_LayerStack) {
             layer->OnImGuiRenderDock();

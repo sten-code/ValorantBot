@@ -1,5 +1,6 @@
 #include "MenuBar.h"
 
+#include <ValorantBot/MainLayer.h>
 #include <ValorantBot/UI/TitleBar.h>
 
 #include <imgui.h>
@@ -26,17 +27,20 @@ void MenuBar::Draw()
     ImGui::BeginGroup();
     if (BeginMenubar(menuBarRect)) {
         if (ImGui::BeginMenu("File")) {
-
+            if (ImGui::MenuItem("Save config")) {
+                m_MainLayer.SaveConfig();
+            }
+            if (ImGui::MenuItem("Reset config")) {
+                m_MainLayer.ResetConfig();
+            }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("View")) {
-
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Tools")) {
-
+            const bool visible = m_MainLayer.IsSettingsVisible();
+            if (ImGui::MenuItem("Settings", nullptr, visible)) {
+                m_MainLayer.ToggleSettingsWindow();
+            }
             ImGui::EndMenu();
         }
     }

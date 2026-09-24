@@ -12,6 +12,9 @@ public:
     void Run();
     virtual void Exit();
 
+    float GetStatusBarHeight() const { return m_StatusBarHeight; }
+    void SetStatusBarHeight(float height) { m_StatusBarHeight = height; }
+
 private:
     void OnEvent(Event& e);
 
@@ -20,6 +23,8 @@ protected:
 
     std::unique_ptr<Window> m_Window = nullptr;
     LayerStack m_LayerStack;
+
+    float m_StatusBarHeight = 0.0f;
 };
 
 Application* CreateApplication();

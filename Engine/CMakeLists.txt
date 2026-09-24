@@ -3,7 +3,7 @@ project(Engine LANGUAGES CXX)
 include(vendor/imgui.cmake)
 include(vendor/spdlog.cmake)
 
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
 if (WIN32)

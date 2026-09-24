@@ -1,7 +1,8 @@
 #include "TitleBar.h"
 
-#include <ValorantBot/UI/Fonts.h>
 #include <Engine/Core/Application.h>
+#include <ValorantBot/UI/Fonts.h>
+#include <ValorantBot/UI/Theme.h>
 
 #include <IconsCodicons.h>
 #include <imgui.h>
@@ -24,7 +25,7 @@ bool TitleBar::Draw() const
     ImGui::GetWindowDrawList()->AddLine(
         ImVec2(x, y + TITLEBAR_HEIGHT),
         ImVec2(x + width, y + TITLEBAR_HEIGHT),
-        0xFF141010);
+        ImGui::ColorConvertFloat4ToU32(Theme::Colors().Border));
 
     ImGui::InvisibleButton("##titleBarDragZone",
         ImVec2(width - BUTTON_WIDTH * 3 + buttonRightOffset, TITLEBAR_HEIGHT));
@@ -48,7 +49,7 @@ bool TitleBar::Draw() const
 
     // Close Button
     ImGui::SetCursorPos(ImVec2(width - BUTTON_WIDTH + buttonRightOffset, titlebarVerticalOffset));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xc42b1cff);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::ColorConvertFloat4ToU32(Theme::Colors().Danger));
     if (ImGui::Button(ICON_CI_CHROME_CLOSE, ImVec2(BUTTON_WIDTH, TITLEBAR_HEIGHT))) {
         m_Window.Close();
     }

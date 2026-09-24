@@ -10,6 +10,7 @@ ImFont* Fonts::s_FontAwesome6 = nullptr;
 ImFont* Fonts::s_Codicon = nullptr;
 ImFont* Fonts::s_MaterialDesignIcons = nullptr;
 ImFont* Fonts::s_JetBrainsMono = nullptr;
+ImFont* Fonts::s_Header = nullptr;
 
 void Fonts::LoadFonts()
 {
@@ -58,6 +59,12 @@ void Fonts::LoadFonts()
         "Resources/Fonts/JetBrainsMono.ttf",
         15.0f, &cfg);
 
+    // Header (semi-bold for section titles)
+    cfg.MergeMode = false;
+    s_Header = io.Fonts->AddFontFromFileTTF(
+        "Resources/Fonts/NotoSans-SemiBold.ttf",
+        15.0f, &cfg);
+
     io.FontDefault = s_MaterialDesignIcons;
 }
 
@@ -68,7 +75,7 @@ void Fonts::Push(Type font, float scale)
         ERR("Fonts::Push: Font does not exist!");
         return;
     }
-    ImGui::PushFont(imFont, ImGui::GetFontSize() * scale);
+    ImGui::PushFont(imFont, ImGui::GetStyle().FontSizeBase * scale);
 }
 
 void Fonts::Pop()
@@ -83,6 +90,7 @@ ImFont* Fonts::GetFont(Type font)
         case Type::Codicon: return s_Codicon;
         case Type::MaterialDesignIcons: return s_MaterialDesignIcons;
         case Type::JetBrainsMono: return s_JetBrainsMono;
+        case Type::Header: return s_Header;
     }
     return nullptr;
 }
