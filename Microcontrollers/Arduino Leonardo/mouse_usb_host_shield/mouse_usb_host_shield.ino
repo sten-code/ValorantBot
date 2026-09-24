@@ -6,9 +6,8 @@
 #endif
 #include <SPI.h>
 
-#include "HID-Project.h"   // Native USB HID mouse emulation + RawHID
+#include "HID-Project.h"
 
-// ---------- Mouse report layout (8 bytes from the host-shield mouse) ----------
 struct MouseInfo {
   struct {
     uint8_t bmLeftButton   : 1;
@@ -17,21 +16,11 @@ struct MouseInfo {
     uint8_t bmDummy        : 5;
   };
   uint8_t padding;
-  int16_t dX;      // + right, - left
-  int16_t dY;      // + down,  - up
-  int16_t dWheel;  // + up,    - down
+  int16_t dX;
+  int16_t dY;
+  int16_t dWheel;
 };
-static_assert(sizeof(MouseInfo) == 8, "MouseInfo must be 8 bytes");
 
-void printHex(uint8_t *data, size_t len) {
-  for (size_t i = 0; i < len; i++) {
-    if (data[i] < 0x10) Serial.print("0");
-    Serial.print(data[i], HEX);
-  }
-  Serial.println();
-}
-
-// ================= USB Host Shield: physical mouse -> PC =================
 class MouseParser : public HIDReportParser {
   union {
     MouseInfo mouseInfo;
@@ -39,24 +28,14 @@ class MouseParser : public HIDReportParser {
   } prevState;
 
 public:
-  void OnMouseMove(MouseInfo *mi) {
-    // Relay movement to the PC. Wheel is included in the same call.
-    Mouse.move(mi->dX, mi->dY, mi->dWheel);
+  void OnMouseMove(MouseInfo *mi) { Mouse.move(mi->dX, mi->dY, mi->dWheel); }
 
-    Serial.print("Move dx=");
-    Serial.print(mi->dX, DEC);
-    Serial.print(" dy=");
-    Serial.print(mi->dY, DEC);
-    Serial.print(" wheel=");
-    Serial.println(mi->dWheel, DEC);
-  }
-
-  void OnLeftButtonUp()    { Mouse.release(MOUSE_LEFT);   Serial.println("L Up");   }
-  void OnLeftButtonDown()  { Mouse.press(MOUSE_LEFT);     Serial.println("L Dn");   }
-  void OnRightButtonUp()   { Mouse.release(MOUSE_RIGHT);  Serial.println("R Up");   }
-  void OnRightButtonDown() { Mouse.press(MOUSE_RIGHT);    Serial.println("R Dn");   }
-  void OnMiddleButtonUp()  { Mouse.release(MOUSE_MIDDLE); Serial.println("M Up");   }
-  void OnMiddleButtonDown(){ Mouse.press(MOUSE_MIDDLE);   Serial.println("M Dn");   }
+  void OnLeftButtonUp()    { Mouse.release(MOUSE_LEFT);   }
+  void OnLeftButtonDown()  { Mouse.press(MOUSE_LEFT);     }
+  void OnRightButtonUp()   { Mouse.release(MOUSE_RIGHT);  }
+  void OnRightButtonDown() { Mouse.press(MOUSE_RIGHT);    }
+  void OnMiddleButtonUp()  { Mouse.release(MOUSE_MIDDLE); }
+  void OnMiddleButtonDown(){ Mouse.press(MOUSE_MIDDLE);   }
 
   void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
     if (len < sizeof(MouseInfo)) return;
@@ -73,7 +52,6 @@ public:
       pmi->bmMiddleButton ? OnMiddleButtonDown() : OnMiddleButtonUp();
     }
 
-    // Movement and/or wheel -> single Mouse.move() call carries both.
     if (pmi->dX || pmi->dY || pmi->dWheel) {
       OnMouseMove(pmi);
     }
@@ -87,7 +65,6 @@ USBHub Hub(&Usb);
 HIDBoot<USB_HID_PROTOCOL_MOUSE> HidMouse(&Usb);
 MouseParser Prs;
 
-// ================= RawHID: PC -> emulated mouse =================
 uint8_t rawhidData[255];
 
 void handleRawHID() {
@@ -133,7 +110,7 @@ void handleRawHID() {
         break;
       }
 
-      case 'W': // Wheel only: 'W' <int8 wheel>   (optional convenience)
+      case 'W':
       {
         int w = (int8_t)RawHID.read();
         Mouse.move(0, 0, w);
@@ -146,15 +123,7 @@ void handleRawHID() {
   }
 }
 
-// ================= Setup / Loop =================
 void setup() {
-  Serial.begin(115200);
-#if !defined(__MIPSEL__)
-  while (!Serial)
-    ;
-#endif
-  Serial.println("Start");
-
   Mouse.begin();
   RawHID.begin(rawhidData, sizeof(rawhidData));
 
