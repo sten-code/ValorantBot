@@ -127,8 +127,7 @@ void setup() {
   Mouse.begin();
   RawHID.begin(rawhidData, sizeof(rawhidData));
 
-  if (Usb.Init() == -1)
-    Serial.println("OSC did not start.");
+  Usb.Init();
 
   delay(200);
 
